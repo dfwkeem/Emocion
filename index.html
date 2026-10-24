@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFF8F0">
+<title>A Little Something for Chiamaka</title>
+<style>
+:root{
+  --cream:#FFF8F0; --blush:#F4DDE3; --burgundy:#722F37; --gold:#D8B56D; --ink:#352A2A;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --hand:"Segoe Script","Bradley Hand","Snell Roundhand","Brush Script MT","Comic Sans MS",cursive;
+  --ln:1.9rem;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);font-family:var(--serif);
+  font-size:1.05rem;line-height:var(--ln);
+  background:radial-gradient(130% 80% at 50% 0%,var(--blush) 0%,var(--cream) 65%) fixed;
+  overflow-x:hidden;
+}
+
+/* ---------- butterflies ---------- */
+.fly{position:fixed;inset:0;pointer-events:none;overflow:hidden;opacity:.8;transition:opacity 1.2s}
+.fly.back{z-index:0}
+.fly.front{z-index:6}
+body.garden .fly{opacity:1}
+body.calm .fly.front{opacity:.45}
+.bf{position:absolute;left:0;top:0;opacity:0;transition:opacity 1.2s;will-change:transform}
+.bf.on{opacity:1}
+.bf.on.extra{opacity:0}
+body.garden .bf.on.extra{opacity:1}
+.bf svg{display:block;width:100%;height:auto;overflow:visible}
+.flap{transform-box:view-box;transform-origin:30px 27px;
+  animation:flap var(--fs,.5s) ease-in-out infinite alternate;animation-delay:var(--fd,0s)}
+@keyframes flap{from{transform:scaleX(1)}to{transform:scaleX(.22)}}
+
+/* ---------- stage ---------- */
+.stage{position:relative;z-index:2;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+  padding:.5rem .6rem calc(.3rem + env(safe-area-inset-bottom));gap:.45rem}
+.bar{display:flex;align-items:center;justify-content:center;gap:.6rem;min-height:46px;flex-wrap:wrap}
+.music{font-family:var(--sans);font-size:.92rem;font-weight:600;min-height:44px;padding:.45rem 1.05rem;border-radius:999px;
+  border:1.5px solid var(--burgundy);background:rgba(255,248,240,.92);color:var(--burgundy);cursor:pointer;touch-action:manipulation;
+  transition:background .2s,transform .15s}
+.music:hover{background:var(--blush)}
+.music:active{transform:scale(.97)}
+.music:disabled{opacity:.6;cursor:default}
+.vol{width:92px;height:44px;accent-color:var(--burgundy)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--burgundy);outline-offset:3px}
+
+/* ---------- notebook ---------- */
+.book{
+  position:relative;flex:none;width:min(94vw,460px);
+  height:calc(100vh - 150px);height:calc(100dvh - 150px);min-height:430px;max-height:780px;
+  perspective:1700px;margin-top:.2rem;
+}
+.book::before{content:"";position:absolute;inset:-6px -7px -7px -5px;background:#5a2229;border-radius:8px 20px 20px 8px;
+  box-shadow:0 26px 44px rgba(53,42,42,.3);z-index:0}
+.leaf{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:left center;
+  transition:transform 1s cubic-bezier(.55,.05,.25,1),visibility 0s 0s}
+.leaf.turned{transform:rotateY(-180deg);visibility:hidden;transition:transform 1s cubic-bezier(.55,.05,.25,1),visibility 0s 1s}
+.face{position:absolute;inset:0;border-radius:6px 16px 16px 6px;overflow:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{transform:rotateY(180deg);background:var(--cream);box-shadow:inset 8px 0 14px -10px rgba(53,42,42,.35)}
+.face.back.inside{background:linear-gradient(135deg,#8a3d46,#722F37)}
+.face.front{transition:box-shadow 1s ease}
+.leaf.turned .face.front{box-shadow:inset 130px 0 90px -70px rgba(53,42,42,.5)}
+
+/* paper pages */
+.paper{background:var(--cream);box-shadow:inset -7px 0 12px -9px rgba(53,42,42,.3)}
+.paper::before{content:"";position:absolute;left:0;top:0;bottom:0;width:20px;z-index:2;pointer-events:none;
+  background:radial-gradient(circle at 10px 50%,rgba(114,47,55,.28) 3.2px,transparent 4px) 0 0/20px 46px repeat-y,
+             linear-gradient(90deg,rgba(114,47,55,.08),transparent)}
+.paper::after{content:"";position:absolute;left:34px;top:0;bottom:0;width:1px;background:rgba(199,125,141,.55);z-index:2;pointer-events:none}
+.scroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:var(--ln) 1rem 1.6rem 2.7rem;text-align:left;
+  background:linear-gradient(transparent calc(var(--ln) - 1px),rgba(114,47,55,.11) calc(var(--ln) - 1px)) 0 0/100% var(--ln) local;
+  scrollbar-width:thin;scrollbar-color:rgba(114,47,55,.3) transparent}
+.plain .scroll{background:none}
+.scroll.center{text-align:center}
+
+/* cover */
+.cover{background:radial-gradient(120% 90% at 30% 10%,#8a3d46,#722F37 55%,#5a2229);color:var(--cream);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.2rem 1.7rem;
+  box-shadow:inset 0 0 0 1px rgba(216,181,109,.2)}
+.cover::before{content:"";position:absolute;inset:14px 14px 14px 22px;border:1.5px solid var(--gold);border-radius:4px 10px 10px 4px;opacity:.75;pointer-events:none}
+.cover .elastic{position:absolute;right:11%;top:0;bottom:0;width:11px;background:#4a1b21;opacity:.7;pointer-events:none;z-index:1}
+.cover .stitch{position:absolute;left:10px;top:0;bottom:0;border-left:2px dashed rgba(216,181,109,.6)}
+.cover>*{position:relative;z-index:2}
+.cover h1{font-family:var(--hand);font-weight:400;font-size:clamp(2.2rem,10vw,3.1rem);line-height:1.25;margin:0 0 1.2rem;color:var(--cream)}
+.cover p{margin:0 0 .9rem;line-height:1.7;max-width:19rem}
+.cover .title{font-size:.9rem;color:var(--gold);margin:1.8rem 0 0;letter-spacing:.02em}
+
+/* type */
+h1,h2{font-weight:400;color:var(--burgundy);margin:0 0 var(--ln)}
+h2{font-size:1.55rem;line-height:var(--ln)}
+h1:focus,h2:focus,[tabindex="-1"]:focus{outline:none}
+p{margin:0 0 var(--ln);line-height:var(--ln)}
+.hand{font-family:var(--hand);color:var(--burgundy)}
+.ps{font-family:var(--hand);color:var(--burgundy);font-size:1.12rem;line-height:1.6;transform:rotate(-1.2deg);margin:1.2rem 0 0}
+.soft{font-size:.95rem;opacity:.8}
+
+/* buttons */
+.btn{font-family:var(--sans);font-size:.98rem;font-weight:600;line-height:1.3;min-height:50px;padding:.75rem 1.5rem;border-radius:999px;
+  border:2px solid var(--burgundy);background:var(--burgundy);color:var(--cream);cursor:pointer;touch-action:manipulation;
+  transition:transform .15s,background .2s;box-shadow:0 6px 16px rgba(114,47,55,.18)}
+.btn:hover{background:#5c242b}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--burgundy);box-shadow:none}
+.btn.ghost:hover{background:var(--blush)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--burgundy);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.btn.gold:hover{background:#e3c58a}
+.cover button:focus-visible{outline-color:var(--cream)}
+.btn.link{border:0;background:none;box-shadow:none;color:var(--burgundy);text-decoration:underline;font-weight:500;min-height:44px;padding:.5rem .8rem}
+.row{display:flex;flex-direction:column;align-items:flex-start;gap:.5rem;margin:.4rem 0 1rem}
+.center .row{align-items:center}
+
+/* taped note */
+.taped{position:relative;background:var(--blush);padding:1.1rem 1rem .5rem;border-radius:3px;margin:1.5rem 0 1.4rem;
+  transform:rotate(-.6deg);box-shadow:0 4px 12px rgba(53,42,42,.14)}
+.taped::before{content:"";position:absolute;top:-11px;left:50%;width:78px;height:20px;margin-left:-39px;background:rgba(216,181,109,.6);transform:rotate(2deg)}
+.taped p{line-height:1.7;margin-bottom:.8rem}
+.taped.in,.fadein{animation:fadein .7s ease both}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* admire cards */
+.cards{display:flex;flex-direction:column;gap:.7rem;margin:0 0 1.2rem}
+.card{border:1.5px solid var(--gold);border-left-width:5px;border-radius:12px;background:rgba(255,255,255,.75);overflow:hidden}
+.card-btn{display:flex;width:100%;align-items:center;justify-content:space-between;gap:.8rem;min-height:56px;padding:.6rem 1rem;
+  background:none;border:0;font:inherit;font-size:1.15rem;line-height:1.3;color:var(--burgundy);cursor:pointer;text-align:left}
+.card-mark{transition:transform .3s}
+.card.open .card-mark{transform:scale(1.25)}
+.card-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.card.open .card-body{grid-template-rows:1fr}
+.card:not(.open) .card-body{visibility:hidden}
+.card-body>div{overflow:hidden;min-height:0}
+.card-body p{padding:0 1rem 1rem;margin:0;line-height:1.65;font-size:1rem}
+
+/* poem */
+.stanza{margin:0 0 var(--ln);font-size:1.08rem}
+.stanza.in{animation:fadein .9s ease both}
+.poem-count{font-family:var(--sans);font-size:.82rem;opacity:.7;margin:0 0 .3rem;line-height:1.4}
+
+/* envelope + letter */
+.envelope{position:relative;width:min(250px,72%);aspect-ratio:3/2;margin:.3rem auto 1rem;background:none;border:0;padding:0;
+  cursor:pointer;perspective:900px;display:block;touch-action:manipulation}
+.envelope span{position:absolute;display:block}
+.env-back{inset:0;background:#E7BCC7;border-radius:8px;box-shadow:0 12px 24px rgba(114,47,55,.22)}
+.env-paper{left:7%;right:7%;top:7%;bottom:10%;background:#FFFDF9;border-radius:4px;transition:transform .7s ease}
+.env-paper::before,.env-paper::after{content:"";position:absolute;left:12%;right:12%;height:2px;background:var(--gold);opacity:.6;top:22%}
+.env-paper::after{top:36%;right:35%}
+.env-front{inset:0;background:linear-gradient(160deg,#F9E6EA,var(--blush));border-radius:8px;clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%)}
+.env-flap{left:0;right:0;top:0;height:58%;background:#E9C3CD;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform .6s ease;z-index:3}
+.env-seal{left:50%;top:58%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;background:var(--burgundy);color:var(--gold);
+  display:flex!important;align-items:center;justify-content:center;font-size:1.1rem;z-index:4;transition:opacity .3s}
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:1}
+.envelope.open .env-paper{transform:translateY(-38%)}
+.envelope.open .env-seal{opacity:0}
+.letter{background:#FFFDF9;border:1.5px solid var(--gold);border-radius:4px;padding:1.2rem 1.1rem .6rem;margin:1rem 0;
+  box-shadow:0 10px 24px rgba(114,47,55,.12);position:relative;z-index:3}
+.letter p{line-height:1.75;margin-bottom:1rem;font-size:1.02rem}
+.letter .greet{font-family:var(--hand);font-size:1.4rem;color:var(--burgundy)}
+.letter .sign{font-family:var(--hand);font-size:1.5rem;color:var(--burgundy);margin-bottom:.8rem}
+
+/* garden */
+.scene{display:flex;flex-direction:column;align-items:center;text-align:center}
+#flower{width:min(200px,54vw);height:auto;max-height:240px;overflow:visible;--o:0}
+.glow{fill:var(--gold);opacity:0;transition:opacity 1.2s}
+#flower[data-stage="4"] .glow{opacity:.22}
+.pg{transform-box:view-box;transform-origin:100px 120px;
+  transform:rotate(calc(var(--a) * var(--o))) scaleX(calc(.5 + .5 * var(--o)));transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.pg.back ellipse{fill:#C77D8D}
+.pg.front ellipse{fill:#F9E6EA;stroke:#722F37;stroke-opacity:.45;stroke-width:1.2}
+.core{fill:var(--gold);opacity:0;transition:opacity .8s .3s}
+#flower[data-stage="3"] .core,#flower[data-stage="4"] .core{opacity:1}
+.plant{transform-box:view-box;transform-origin:100px 262px}
+.bloomed .plant{animation:sway 6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+.caption{min-height:1.7em;font-style:italic;color:var(--burgundy);margin:.4rem 0 .8rem;line-height:1.6}
+.garden-end{text-align:center}
+.garden-end p{line-height:1.7;margin-bottom:.9rem}
+
+/* final */
+.final p{line-height:1.8;margin-bottom:1.1rem}
+.final .list{margin:0 0 1.1rem;padding-left:.2rem;color:var(--burgundy);font-style:italic;line-height:1.8}
+.final .list span{display:block}
+.final .lead{color:var(--burgundy)}
+.final .closing{font-style:italic;color:var(--burgundy);margin-top:1.6rem;margin-bottom:.3rem}
+.final .sig{font-family:var(--hand);font-size:1.7rem;color:var(--burgundy);margin-bottom:1.3rem}
+.final .keep{margin:.3rem 0 1rem}
+
+/* tabs */
+.tabs{display:flex;justify-content:center;padding:0 .5rem}
+.tab{width:42px;height:44px;background:none;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.tab::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--gold);opacity:.6;transition:all .3s}
+.tab[aria-current="step"]::before{background:var(--burgundy);opacity:1;transform:scale(1.45)}
+.tab:disabled{cursor:default}
+.tab:disabled::before{opacity:.25}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  .leaf.turned{transition-delay:0s!important}
+}
+</style>
+</head>
+<body>
+
+<div class="fly back" id="flyBack" aria-hidden="true"></div>
+<div class="fly front" id="flyFront" aria-hidden="true"></div>
+
+<main class="stage">
+  <div class="bar">
+    <button class="music" id="music" type="button" aria-pressed="false">♪ Play our little soundtrack</button>
+    <input class="vol" id="vol" type="range" min="0" max="100" value="60" aria-label="Music volume" hidden>
+  </div>
+
+  <div class="book" id="book">
+
+    <!-- SECTION 1: cover -->
+    <div class="leaf" data-i="0">
+      <div class="face front cover">
+        <span class="stitch" aria-hidden="true"></span><span class="elastic" aria-hidden="true"></span>
+        <h1 id="h0" tabindex="-1">Hey, Chiamaka. ❤️</h1>
+        <p>I have something to tell you.</p>
+        <p>And no, before you ask, you haven’t done anything wrong. 😂</p>
+        <p>I just thought someone as special as you deserves something a little different.</p>
+        <div class="row" style="margin-top:1rem"><button class="btn gold" type="button" data-go="1">Open Your Little Surprise</button></div>
+        <p class="title">A Little Something for Chiamaka</p>
+      </div>
+      <div class="face back inside" aria-hidden="true"></div>
+    </div>
+
+    <!-- SECTION 2: complaint -->
+    <div class="leaf" data-i="1">
+      <div class="face front paper"><div class="scroll">
+        <h2 id="h1x" tabindex="-1">My little complaint about you</h2>
+        <p>Chiamaka, I have a small complaint to make about you.</p>
+        <p>How exactly do you expect someone to concentrate when your smile exists?</p>
+        <p>And the way you talk? I might start a conversation with one thing in mind and end up enjoying the conversation so much that I forget what I originally wanted to say.</p>
+        <p>Honestly, this is becoming a very serious distraction.</p>
+        <p>I think I deserve compensation.</p>
+        <p>Perhaps one more smile?</p>
+        <p>Okay, okay. I’ll behave.</p>
+        <p>For now. 😂❤️</p>
+        <div class="row" id="tease1"><button class="btn" type="button" id="notSerious">You’re Not Serious, Kim 😂</button></div>
+        <div class="taped" id="teaseReply" role="status" hidden>
+          <p class="hand" style="font-size:1.2rem">You’re right. But in my defence, you make it unusually difficult to be serious about you.</p>
+        </div>
+        <div class="row" id="turn1" hidden><button class="btn" type="button" data-go="2">Turn the page</button></div>
+      </div></div>
+      <div class="face back paper" aria-hidden="true"></div>
+    </div>
+
+    <!-- SECTION 3: admire -->
+    <div class="leaf" data-i="2">
+      <div class="face front paper"><div class="scroll">
+        <h2 id="h2x" tabindex="-1">The things I admire about you</h2>
+        <p class="soft" id="cardHint">Tap each card.</p>
+        <div class="cards">
+          <div class="card">
+            <button class="card-btn" type="button" aria-expanded="false" aria-controls="c0"><span>Your Smile</span><span class="card-mark" aria-hidden="true">♡</span></button>
+            <div class="card-body" id="c0"><div><p>There’s something about your smile that makes an ordinary moment feel special. I don’t know if you realize the effect it has, but I hope you never lose the happiness behind it.</p></div></div>
+          </div>
+          <div class="card">
+            <button class="card-btn" type="button" aria-expanded="false" aria-controls="c1"><span>The Way You Talk</span><span class="card-mark" aria-hidden="true">♡</span></button>
+            <div class="card-body" id="c1"><div><p>Sometimes, I have things planned to say, but then you start talking and I find myself enjoying the conversation more than the plan I came with.</p></div></div>
+          </div>
+          <div class="card">
+            <button class="card-btn" type="button" aria-expanded="false" aria-controls="c2"><span>Your Caring Heart</span><span class="card-mark" aria-hidden="true">♡</span></button>
+            <div class="card-body" id="c2"><div><p>Your caring nature is one of those things that makes me want to know you beyond the surface. It’s beautiful when someone’s kindness is simply part of who they are.</p></div></div>
+          </div>
+          <div class="card">
+            <button class="card-btn" type="button" aria-expanded="false" aria-controls="c3"><span>Your Calmness</span><span class="card-mark" aria-hidden="true">♡</span></button>
+            <div class="card-body" id="c3"><div><p>There’s something comforting about your calm character. You have a way of making me appreciate the quieter, gentler side of getting to know someone.</p></div></div>
+          </div>
+        </div>
+        <div id="cardsEnd" hidden class="fadein">
+          <p class="hand" style="font-size:1.15rem;line-height:1.7">And Chiamaka, these are only the things I’ve discovered so far. I have a feeling there’s still so much more to learn about you.</p>
+          <p class="ps">P.S. If you’re smiling right now, the plan is working.</p>
+          <div class="row" style="margin-top:1rem"><button class="btn" type="button" data-go="3">There’s Something I’ve Written for You.</button></div>
+        </div>
+      </div></div>
+      <div class="face back paper" aria-hidden="true"></div>
+    </div>
+
+    <!-- SECTION 4: poem -->
+    <div class="leaf" data-i="3">
+      <div class="face front paper"><div class="scroll">
+        <h2 id="h3x" tabindex="-1">Chiamaka, If My Heart Could Speak</h2>
+        <div id="poem">
+          <p class="stanza">If my heart could speak, it would start slow,<br>like someone tiptoeing into a quiet room.<br>It would say your name the way you do,<br>soft, and in no hurry.</p>
+          <p class="stanza" hidden>It would talk about your smile first,<br>how it arrives like good news<br>and makes a heavy day feel light.<br>I still can’t explain the effect.<br>I only know it works.</p>
+          <p class="stanza" hidden>Then the way you talk,<br>easy, warm, never rushed.<br>I come with plans for what to say<br>and leave with nothing but a grin.</p>
+          <p class="stanza" hidden>It would tell you what it sees in your heart,<br>a kindness that never asks to be noticed.<br>I notice it anyway.<br>I hope that’s okay.</p>
+          <p class="stanza" hidden>It would thank you for your calm,<br>the gentle way you carry yourself<br>when everything else is loud.<br>Near you, the world slows down enough to enjoy.</p>
+          <p class="stanza" hidden>It would make no grand promises.<br>It can’t see tomorrow, only today,<br>and today says you are worth knowing better.</p>
+          <p class="stanza" hidden>So here is what it wants, plain and small:<br>to keep learning who you are,<br>one talk at a time,<br>at the speed that feels right to you.</p>
+          <p class="stanza" hidden>And if this friendship turns into something more,<br>I will be glad, and gentle with it.<br>If it doesn’t, I am still happy you’re here.<br>That is everything my heart would say.</p>
+        </div>
+        <div class="row" id="poemCtl">
+          <p class="poem-count" id="poemCount" aria-live="polite">1 of 8</p>
+          <button class="btn" type="button" id="nextStanza">Next part</button>
+          <button class="btn link" type="button" id="showAll">Show it all</button>
+        </div>
+        <div id="poemEnd" hidden class="fadein">
+          <p class="sig hand" style="font-size:1.5rem">— Kim ❤️</p>
+          <p class="ps">P.S. Poetry is not my day job. Clap anyway. 😂</p>
+          <div class="row" style="margin-top:1rem"><button class="btn" type="button" data-go="4">There’s a Letter for You.</button></div>
+        </div>
+      </div></div>
+      <div class="face back paper" aria-hidden="true"></div>
+    </div>
+
+    <!-- SECTION 5: letter -->
+    <div class="leaf" data-i="4">
+      <div class="face front paper"><div class="scroll" id="letterScroll">
+        <h2 id="h4x" tabindex="-1">A letter, just for you</h2>
+        <div id="envBox">
+          <p>Chiamaka, this one’s a little more serious.</p>
+          <p>Don’t worry, though. I’m still the same Kim. 😂❤️</p>
+          <button class="envelope" id="envelope" type="button" aria-label="Open your letter">
+            <span class="env-back"></span><span class="env-paper"></span><span class="env-front"></span><span class="env-flap"></span>
+            <span class="env-seal" aria-hidden="true">❤</span>
+          </button>
+          <div class="row" style="align-items:center"><button class="btn" type="button" id="openLetter">Open Your Letter</button></div>
+        </div>
+        <article class="letter" id="letter" tabindex="-1" hidden>
+          <p class="greet">Dear Chiamaka,</p>
+          <p>I’ll start with the honest part. I enjoy getting to know you. Talking with you has become something I look forward to, and I didn’t plan that. It just happened.</p>
+          <p>What I admire most is not one big thing. It’s the small ones. Your smile, the easy way you talk, the care you show people, and the calm you carry. Together they make you someone I want to understand better.</p>
+          <p>So let me be clear about my intentions. They are real. I’m not trying to impress you for a day or play a game. I’d like to build something good with you, a bond that stands on trust, honesty, and plenty of laughter.</p>
+          <p>I also know good things can’t be forced. I’m happy to let this grow at its own pace. You don’t owe me an answer, a promise, or a hurry. Being your friend already makes me glad.</p>
+          <p>If one day you want to see where this could go, I’ll be right here, same old Kim.</p>
+          <p>Thank you for reading this far.</p>
+          <p class="sign">Kim</p>
+        </article>
+        <div id="letterEnd" hidden>
+          <p class="ps">P.S. You may read this twice. I won’t tell anyone.</p>
+          <div class="row" style="margin-top:1rem"><button class="btn" type="button" data-go="5">Come to the Garden</button></div>
+        </div>
+      </div></div>
+      <div class="face back paper" aria-hidden="true"></div>
+    </div>
+
+    <!-- SECTION 6: garden -->
+    <div class="leaf" data-i="5">
+      <div class="face front paper"><div class="scroll center">
+        <h2 id="h5x" tabindex="-1">A little garden for you</h2>
+        <p>Some beautiful things aren’t meant to be rushed.</p>
+        <div class="scene" id="scene">
+          <svg id="flower" viewBox="0 0 200 280" role="img" aria-label="A flower that opens a little more each time you tap the button">
+            <circle class="glow" cx="100" cy="110" r="88"/>
+            <ellipse cx="100" cy="266" rx="48" ry="7" fill="#722F37" opacity=".12"/>
+            <g class="plant">
+              <path d="M100 264 C97 220 104 175 100 118" fill="none" stroke="#6F8566" stroke-width="5" stroke-linecap="round"/>
+              <path d="M99 224 C70 220 52 200 48 176 C76 178 94 196 99 224Z" fill="#8AA17E"/>
+              <path d="M101 200 C130 198 150 180 154 156 C126 158 106 176 101 200Z" fill="#7B9370"/>
+              <g>
+                <g class="pg back" style="--a:-64deg"><ellipse cx="100" cy="74" rx="17" ry="46"/></g>
+                <g class="pg back" style="--a:-32deg"><ellipse cx="100" cy="74" rx="17" ry="46"/></g>
+                <g class="pg back" style="--a:0deg"><ellipse cx="100" cy="74" rx="17" ry="46"/></g>
+                <g class="pg back" style="--a:32deg"><ellipse cx="100" cy="74" rx="17" ry="46"/></g>
+                <g class="pg back" style="--a:64deg"><ellipse cx="100" cy="74" rx="17" ry="46"/></g>
+                <g class="pg front" style="--a:-48deg"><ellipse cx="100" cy="78" rx="18" ry="44"/></g>
+                <g class="pg front" style="--a:-16deg"><ellipse cx="100" cy="78" rx="18" ry="44"/></g>
+                <g class="pg front" style="--a:16deg"><ellipse cx="100" cy="78" rx="18" ry="44"/></g>
+                <g class="pg front" style="--a:48deg"><ellipse cx="100" cy="78" rx="18" ry="44"/></g>
+              </g>
+              <circle class="core" cx="100" cy="116" r="11"/>
+            </g>
+          </svg>
+          <p class="caption" id="caption" aria-live="polite">A closed bud, waiting.</p>
+          <button class="btn" type="button" id="bloom">Help the Flower Bloom</button>
+          <p class="ps" id="gardenPs" style="margin-top:1rem">P.S. Tap slowly. Flowers get shy.</p>
+        </div>
+        <div class="garden-end fadein" id="gardenEnd" hidden>
+          <p>Maybe the most beautiful connections begin this way, too.</p>
+          <p>Two people getting to know each other, sharing conversations, making each other smile, and allowing something meaningful to grow in its own time.</p>
+          <p>No rushing.</p>
+          <p>No pretending.</p>
+          <p>Just two people being genuine.</p>
+          <div class="row" style="align-items:center"><button class="btn" type="button" data-go="6">One Last Thing, Chiamaka.</button></div>
+        </div>
+      </div></div>
+      <div class="face back paper" aria-hidden="true"></div>
+    </div>
+
+    <!-- SECTION 7: final -->
+    <div class="leaf" data-i="6">
+      <div class="face front paper plain"><div class="scroll final">
+        <h2 id="h6x" tabindex="-1">One last thing, Chiamaka</h2>
+        <p class="lead">Chiamaka,</p>
+        <p>If you’ve made it this far, I hope I’ve managed to make you smile at least once.</p>
+        <p>I made this because I wanted you to know that I appreciate the little things that make you who you are.</p>
+        <div class="list"><span>Your smile.</span><span>The way you talk.</span><span>Your caring heart.</span><span>Your calmness.</span></div>
+        <p>And the fact that I’m still discovering more about you.</p>
+        <p>I won’t pretend that I know everything about you, because we’re still getting to know each other.</p>
+        <p>But that’s part of what makes this beautiful to me.</p>
+        <p>There’s still so much to discover, so many conversations to have, and so many opportunities to make each other smile.</p>
+        <p>I don’t know exactly what the future holds for us.</p>
+        <p>But I know that I’d love the chance to discover it with you, if that’s something you want too.</p>
+        <p>I won’t ask you to promise me forever today.</p>
+        <p>I’ll simply keep showing you, through my actions, that my intentions are genuine.</p>
+        <p>And if one day you find yourself smiling at the thought of us becoming something more, I hope you’ll know that the thought has made me smile too.</p>
+        <p>Until then, I’ll keep being Kim.</p>
+        <p>The one who admires your smile a little too much, enjoys your conversations a little too deeply, and is genuinely happy to be getting to know you.</p>
+        <p>And Chiamaka?</p>
+        <p>I have one final confession.</p>
+        <p>I was going to play it cool.</p>
+        <p>But I made you an entire website.</p>
+        <p>So I think we both know how well that plan worked. 😂❤️</p>
+        <p class="closing">With a heart that hopes to become a little more special to you,</p>
+        <p class="sig">— Kim ❤️</p>
+        <div class="row keep"><button class="btn" type="button" id="keep">Keep This Little Piece of My Heart.</button></div>
+        <div class="taped" id="keepReply" role="status" hidden>
+          <p class="hand" style="font-size:1.15rem">Made for you, Chiamaka.</p>
+          <p>With sincerity, a little courage, and perhaps an unreasonable number of butterflies.</p>
+          <p class="hand" style="font-size:1.3rem">— Kim 🦋❤️</p>
+        </div>
+        <div class="row"><button class="btn link" type="button" data-go="0">Close the notebook and start again</button></div>
+      </div></div>
+      <div class="face back paper" aria-hidden="true"></div>
+    </div>
+
+  </div>
+
+  <nav class="tabs" id="tabs" aria-label="Pages of the notebook"></nav>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; }
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function smoothTo(node) { try { node.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); } catch (e) {} }
+
+  /* =====================================================
+     NOTEBOOK: pages turn around the left spine
+     ===================================================== */
+  var leaves = $$(".leaf"), N = leaves.length, cur = 0, maxReached = 0;
+  var TURN_MS = reduce ? 0 : 1000;
+  var tabs = [];
+  var labels = ["Cover", "Complaint", "Admire", "Poem", "Letter", "Garden", "Last page"];
+
+  var tabsBox = $("#tabs");
+  labels.forEach(function (l, i) {
+    var b = el("button", "tab"); b.type = "button";
+    b.setAttribute("aria-label", "Page " + (i + 1) + " of 7: " + l);
+    b.addEventListener("click", function () { goTo(i); });
+    tabsBox.appendChild(b); tabs.push(b);
+  });
+
+  function restZ(i) { return leaves[i].classList.contains("turned") ? i : N - i; }
+  leaves.forEach(function (lf, i) { lf.style.zIndex = N - i; });
+
+  function turn(i, flip, delay, zBase) {
+    setTimeout(function () {
+      var lf = leaves[i];
+      lf.style.zIndex = zBase;
+      lf.classList.toggle("turned", flip);
+      setTimeout(function () { lf.style.zIndex = restZ(i); }, TURN_MS + 60);
+    }, delay);
+  }
+  function refresh() {
+    leaves.forEach(function (lf, i) {
+      if (i === cur) { lf.removeAttribute("inert"); lf.removeAttribute("aria-hidden"); }
+      else { lf.setAttribute("inert", ""); lf.setAttribute("aria-hidden", "true"); }
+    });
+    tabs.forEach(function (t, i) {
+      t.disabled = i > maxReached;
+      if (i === cur) t.setAttribute("aria-current", "step"); else t.removeAttribute("aria-current");
+    });
+    document.body.classList.toggle("calm", cur === N - 1);
+    document.body.classList.toggle("garden", cur === 5);
+  }
+  function goTo(n) {
+    n = Math.max(0, Math.min(N - 1, n));
+    if (n === cur) return;
+    var from = cur, k;
+    if (n > from) {
+      for (k = from; k < n; k++) turn(k, true, reduce ? 0 : (k - from) * 160, 50 + k);
+    } else {
+      for (k = from - 1; k >= n; k--) turn(k, false, reduce ? 0 : (from - 1 - k) * 160, 50 + N - k);
+    }
+    cur = n;
+    if (n > maxReached) maxReached = n;
+    refresh();
+    var sc = $(".scroll", leaves[n]);
+    if (sc) sc.scrollTop = 0;
+    if (n === 5) gardenButterflies();
+    setTimeout(function () {
+      var h = leaves[n].querySelector("h1,h2");
+      if (h) { try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } }
+    }, reduce ? 0 : 500);
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-go]");
+    if (b) goTo(parseInt(b.getAttribute("data-go"), 10));
+  });
+
+  /* ---------- section 2: teasing reply ---------- */
+  $("#notSerious").addEventListener("click", function () {
+    $("#tease1").hidden = true;
+    var r = $("#teaseReply"); r.hidden = false; r.classList.add("in");
+    $("#turn1").hidden = false;
+    smoothTo(r);
+    driftAcross();
+  });
+
+  /* ---------- section 3: cards ---------- */
+  var cards = $$(".card"), openCount = 0;
+  cards.forEach(function (c) {
+    var btn = $(".card-btn", c), seen = false;
+    btn.addEventListener("click", function () {
+      var open = c.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      $(".card-mark", c).textContent = open ? "❤" : "♡";
+      if (open && !seen) { seen = true; openCount++; }
+      if (openCount >= cards.length && $("#cardsEnd").hidden) {
+        $("#cardsEnd").hidden = false; $("#cardHint").hidden = true;
+        setTimeout(function () { smoothTo($("#cardsEnd")); }, 350);
+      }
+    });
+  });
+
+  /* ---------- section 4: poem ---------- */
+  var stanzas = $$(".stanza"), shown = 1;
+  var nextBtn = $("#nextStanza"), allBtn = $("#showAll"), poemCount = $("#poemCount");
+  function reveal(i) { stanzas[i].hidden = false; stanzas[i].classList.add("in"); }
+  function poemState() {
+    poemCount.textContent = shown + " of " + stanzas.length;
+    if (shown >= stanzas.length) {
+      $("#poemCtl").hidden = true; $("#poemEnd").hidden = false;
+    }
+  }
+  nextBtn.addEventListener("click", function () {
+    if (shown < stanzas.length) { reveal(shown); smoothTo(stanzas[shown]); shown++; }
+    poemState();
+  });
+  allBtn.addEventListener("click", function () {
+    while (shown < stanzas.length) { reveal(shown); shown++; }
+    poemState();
+    setTimeout(function () { smoothTo($("#poemEnd")); }, 200);
+  });
+
+  /* ---------- section 5: envelope ---------- */
+  var env = $("#envelope"), opened = false;
+  function openLetter() {
+    if (opened) return;
+    opened = true;
+    env.classList.add("open");
+    $("#openLetter").hidden = true;
+    setTimeout(function () {
+      $("#envBox").hidden = true;
+      var L = $("#letter"); L.hidden = false; L.classList.add("fadein");
+      $("#letterEnd").hidden = false;
+      $("#letterScroll").scrollTop = 0;
+      try { L.focus({ preventScroll: true }); } catch (e) {}
+    }, reduce ? 0 : 800);
+  }
+  env.addEventListener("click", openLetter);
+  $("#openLetter").addEventListener("click", openLetter);
+
+  /* ---------- section 6: flower ---------- */
+  var svg = $("#flower"), bloomBtn = $("#bloom"), cap = $("#caption"), stage = 0;
+  var opens = [0, 0.3, 0.58, 0.82, 1];
+  var caps = ["A closed bud, waiting.", "A little patience.", "A little care.", "A little honesty.", "And a little time. Look at that."];
+  function setStage(s) {
+    stage = s;
+    svg.style.setProperty("--o", opens[s]);
+    svg.setAttribute("data-stage", String(s));
+    cap.textContent = caps[s];
+    if (s >= 4) {
+      bloomBtn.hidden = true; $("#gardenPs").hidden = true;
+      $("#scene").classList.add("bloomed");
+      var end = $("#gardenEnd"); end.hidden = false;
+      setTimeout(function () { smoothTo(end); }, 500);
+    }
+  }
+  bloomBtn.addEventListener("click", function () { if (stage < 4) setStage(stage + 1); });
+  setStage(0);
+
+  /* ---------- section 7: keep ---------- */
+  $("#keep").addEventListener("click", function () {
+    var r = $("#keepReply"); r.hidden = false; r.classList.add("in");
+    $("#keep").parentNode.hidden = true;
+    smoothTo(r);
+    driftAcross();
+  });
+
+  /* =====================================================
+     BUTTERFLIES
+     ===================================================== */
+  var layers = { back: $("#flyBack"), front: $("#flyFront") };
+  var flies = [], W = window.innerWidth, H = window.innerHeight;
+  var colorways = [
+    "--w1:#D8B56D;--w2:#EAD3A2;--w3:#722F37",
+    "--w1:#E3A9B6;--w2:#F4DDE3;--w3:#722F37",
+    "--w1:#722F37;--w2:#A0525D;--w3:#D8B56D",
+    "--w1:#F4DDE3;--w2:#FFF8F0;--w3:#C77D8D",
+    "--w1:#C77D8D;--w2:#E7BCC7;--w3:#FFF8F0"
+  ];
+  function bflySVG() {
+    var wing = '<path d="M30 24C20 3 3 4 4 19c1 11 16 13 26 6Z" fill="var(--w1)" stroke="#722F37" stroke-opacity=".3" stroke-width="1"/>' +
+               '<path d="M30 27C21 28 10 33 13 42c2 6 14 3 17-14Z" fill="var(--w2)" stroke="#722F37" stroke-opacity=".3" stroke-width="1"/>' +
+               '<circle cx="14" cy="16" r="3" fill="var(--w3)" opacity=".85"/>';
+    return '<svg viewBox="0 0 60 50" aria-hidden="true" focusable="false">' +
+      '<g><g class="flap">' + wing + '</g></g>' +
+      '<g transform="translate(60 0) scale(-1 1)"><g class="flap">' + wing + '</g></g>' +
+      '<ellipse cx="30" cy="27" rx="2" ry="9" fill="#352A2A"/></svg>';
+  }
+  function pickTarget(f) {
+    if (f.layer === "back") { f.tx = rand(-.05, 1.05) * W; f.ty = rand(-.05, 1.05) * H; return; }
+    var r = Math.random();
+    if (r < .3) { f.tx = rand(-.06, .1) * W; f.ty = rand(0, 1) * H; }
+    else if (r < .6) { f.tx = rand(.9, 1.06) * W; f.ty = rand(0, 1) * H; }
+    else if (r < .8) { f.tx = rand(0, 1) * W; f.ty = rand(-.06, .1) * H; }
+    else { f.tx = rand(0, 1) * W; f.ty = rand(.88, 1.06) * H; }
+  }
+  function addFly(layer, size, opts) {
+    opts = opts || {};
+    var box = el("div", "bf" + (opts.extra ? " extra" : ""));
+    box.style.cssText = "width:" + size + "px;" + colorways[Math.floor(Math.random() * colorways.length)] +
+      ";--fs:" + rand(.38, .7).toFixed(2) + "s;--fd:-" + rand(0, .6).toFixed(2) + "s";
+    box.innerHTML = bflySVG();
+    layers[layer].appendChild(box);
+    var f = { el: box, layer: layer, size: size, t: rand(0, 20), ph: rand(0, 6.28), age: 0, life: opts.life || 0,
+      speed: rand(28, 62), vx: 0, vy: 0, ang: 0, x: 0, y: 0, tx: 0, ty: 0 };
+    if (opts.from) { f.x = opts.from[0] * W; f.y = opts.from[1] * H; }
+    else { f.x = rand(0, 1) * W; f.y = rand(0, 1) * H; }
+    pickTarget(f);
+    f.ang = Math.atan2(f.ty - f.y, f.tx - f.x) + Math.PI / 2;
+    place(f);
+    requestAnimationFrame(function () { box.classList.add("on"); });
+    flies.push(f);
+    return f;
+  }
+  function place(f) {
+    f.el.style.transform = "translate3d(" + (f.x - f.size / 2).toFixed(1) + "px," + (f.y - f.size / 2).toFixed(1) + "px,0) rotate(" + f.ang.toFixed(3) + "rad)";
+  }
+  function update(f, dt) {
+    var dx = f.tx - f.x, dy = f.ty - f.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+    if (d < 60) pickTarget(f);
+    f.t += dt; f.age += dt;
+    var wob = Math.sin(f.t * 2.1 + f.ph) * .55, ux = dx / d, uy = dy / d;
+    var dvx = (ux - uy * wob) * f.speed, dvy = (uy + ux * wob) * f.speed - Math.sin(f.t * 5 + f.ph) * 9;
+    var k = Math.min(1, dt * 1.8);
+    f.vx += (dvx - f.vx) * k; f.vy += (dvy - f.vy) * k;
+    f.x += f.vx * dt; f.y += f.vy * dt;
+    var target = Math.atan2(f.vy, f.vx) + Math.PI / 2;
+    var diff = Math.atan2(Math.sin(target - f.ang), Math.cos(target - f.ang));
+    f.ang += diff * Math.min(1, dt * 3);
+    place(f);
+  }
+  var last = 0, raf = 0;
+  function tick(ts) {
+    var dt = Math.min(.05, (ts - last) / 1000); last = ts;
+    for (var i = flies.length - 1; i >= 0; i--) {
+      var f = flies[i];
+      update(f, dt);
+      if (f.life && f.age > f.life) {
+        f.el.classList.remove("on");
+        if (f.age > f.life + 1.4) { f.el.parentNode && f.el.parentNode.removeChild(f.el); flies.splice(i, 1); }
+      }
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  function driftAcross() {
+    if (reduce) return;
+    for (var i = 0; i < 3; i++) addFly("front", rand(20, 30), { life: 9, from: [rand(-.1, 1.1), 1.08] });
+  }
+  var gardenDone = false;
+  function gardenButterflies() {
+    if (gardenDone || reduce) return;
+    gardenDone = true;
+    for (var i = 0; i < 4; i++) addFly("front", rand(22, 36), { extra: true });
+  }
+  window.addEventListener("resize", function () { W = window.innerWidth; H = window.innerHeight; });
+
+  var plan = [["back", 40], ["back", 30], ["back", 46], ["back", 26], ["back", 34], ["front", 22], ["front", 28], ["front", 20]];
+  if (reduce) {
+    var spots = [[.08, .1], [.9, .2], [.1, .88], [.9, .82]];
+    spots.forEach(function (p, i) { var f = addFly(i % 2 ? "front" : "back", 28, { from: p }); f.vx = f.vy = 0; f.ang = 0; place(f); });
+  } else {
+    plan.forEach(function (p) { addFly(p[0], p[1]); });
+    last = performance.now(); raf = requestAnimationFrame(tick);
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) cancelAnimationFrame(raf);
+      else { last = performance.now(); raf = requestAnimationFrame(tick); }
+    });
+  }
+
+  /* =====================================================
+     MUSIC: a soft piano-style loop made in the browser.
+     Original, nothing to download, no licence needed.
+     To use your own licensed track instead, put its file
+     name here (for example "song.mp3") next to this file.
+     ===================================================== */
+  var AUDIO_FILE = "";
+  var mBtn = $("#music"), vol = $("#vol");
+  var M = { ctx: null, master: null, on: false, timer: 0, off: 0, step: 0, next: 0, level: .6, file: null };
+  var chords = [[48, 55, 60, 64, 67], [47, 55, 59, 62, 67], [45, 57, 60, 64, 69], [41, 57, 60, 65, 69]];
+  var penta = [72, 74, 76, 79, 81];
+  var STEP = .62;
+  var Ctx = window.AudioContext || window.webkitAudioContext;
+
+  function setBtn() {
+    mBtn.textContent = M.on ? "♫ Pause the music" : "♪ Play our little soundtrack";
+    mBtn.setAttribute("aria-pressed", M.on ? "true" : "false");
+    vol.hidden = !M.on;
+  }
+  function hz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function pluck(m, t, v, d) {
+    var c = M.ctx, f = hz(m);
+    var o1 = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter();
+    o1.type = "sine"; o2.type = "triangle";
+    o1.frequency.value = f; o2.frequency.value = f * 2;
+    lp.type = "lowpass"; lp.frequency.value = 2200;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(v, t + .015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    var g2 = c.createGain(); g2.gain.value = .22;
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(lp);
+    lp.connect(M.master); lp.connect(M.send);
+    o1.start(t); o2.start(t); o1.stop(t + d + .1); o2.stop(t + d + .1);
+  }
+  function playStep(s, t) {
+    var ch = chords[Math.floor(s / 8) % chords.length], k = s % 8;
+    if (k === 0) { pluck(ch[0], t, .2, 3.6); pluck(ch[1], t, .09, 3); }
+    var arp = [null, 2, 3, 4, 3, 2, 4, 3][k];
+    if (arp !== null) pluck(ch[arp], t, .1 + (k % 2) * .02, 2.2);
+    if ((k === 3 || k === 7) && Math.random() < .55) pluck(penta[Math.floor(Math.random() * penta.length)], t + .02, .075, 2.6);
+  }
+  function schedule() {
+    while (M.next < M.ctx.currentTime + .8) { playStep(M.step, M.next); M.next += STEP; M.step++; }
+  }
+  function level() { return M.level * .55; }
+  function startSynth() {
+    if (!Ctx) throw new Error("no audio");
+    if (!M.ctx) {
+      var c = M.ctx = new Ctx();
+      M.master = c.createGain(); M.master.gain.value = 0; M.master.connect(c.destination);
+      M.send = c.createGain(); M.send.gain.value = .45;
+      var dl = c.createDelay(2); dl.delayTime.value = .47;
+      var fb = c.createGain(); fb.gain.value = .42;
+      var lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1700;
+      M.send.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(M.master);
+    }
+    clearTimeout(M.off);
+    M.ctx.resume();
+    var t = M.ctx.currentTime;
+    M.master.gain.cancelScheduledValues(t);
+    M.master.gain.setValueAtTime(M.master.gain.value, t);
+    M.master.gain.linearRampToValueAtTime(level(), t + 2.2);
+    M.next = Math.max(M.next, t + .1);
+    clearInterval(M.timer);
+    M.timer = setInterval(schedule, 250);
+    schedule();
+  }
+  function stopSynth() {
+    var c = M.ctx; if (!c) return;
+    var t = c.currentTime;
+    M.master.gain.cancelScheduledValues(t);
+    M.master.gain.setValueAtTime(M.master.gain.value, t);
+    M.master.gain.linearRampToValueAtTime(0, t + .9);
+    clearTimeout(M.off);
+    M.off = setTimeout(function () { clearInterval(M.timer); try { c.suspend(); } catch (e) {} }, 1000);
+  }
+  function fadeFile(to, ms, done) {
+    var a = M.file, from = a.volume, n = 12, i = 0;
+    var id = setInterval(function () {
+      i++; a.volume = Math.max(0, Math.min(1, from + (to - from) * i / n));
+      if (i >= n) { clearInterval(id); if (done) done(); }
+    }, ms / n);
+  }
+  function startMusic() {
+    if (AUDIO_FILE) {
+      try {
+        if (!M.file) { M.file = new Audio(AUDIO_FILE); M.file.loop = true; M.file.volume = 0; }
+        var p = M.file.play();
+        if (p && p.catch) p.catch(function () { M.file = null; AUDIO_FILE = ""; if (M.on) { try { startSynth(); } catch (e) { fail(); } } });
+        fadeFile(M.level * .7, 1500);
+        return;
+      } catch (e) { AUDIO_FILE = ""; }
+    }
+    startSynth();
+  }
+  function stopMusic() {
+    if (AUDIO_FILE && M.file) { fadeFile(0, 700, function () { M.file.pause(); }); return; }
+    stopSynth();
+  }
+  function fail() {
+    M.on = false; mBtn.textContent = "Music isn’t available here"; mBtn.disabled = true; vol.hidden = true;
+  }
+  mBtn.addEventListener("click", function () {
+    try {
+      if (!M.on) { M.on = true; startMusic(); } else { M.on = false; stopMusic(); }
+      setBtn();
+    } catch (e) { fail(); }
+  });
+  vol.addEventListener("input", function () {
+    M.level = vol.value / 100;
+    if (!M.on) return;
+    if (AUDIO_FILE && M.file) M.file.volume = M.level * .7;
+    else if (M.ctx) M.master.gain.setTargetAtTime(level(), M.ctx.currentTime, .1);
+  });
+  setBtn();
+
+  /* ---------- start ---------- */
+  refresh();
+})();
+</script>
+</body>
+</html>
